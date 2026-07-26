@@ -99,14 +99,10 @@ def contribution_count(username: str):
 def contribute(req: ContributeRequest):
     submission = {
         "type": req.type,
-        "payload": {
-            "language": req.language,
-            "dialect": req.dialect,
-            **req.content,
-        },
-        "status": "pending",
+        "language": req.language,
+        "dialect": req.dialect,
+        "content": req.content,
         "contributor_username": req.contributor_username,
-        "created_at": datetime.utcnow(),
     }
     result = db.submissions.insert_one(submission)
     return {"message": "Submission received, pending admin review", "id": str(result.inserted_id)}
