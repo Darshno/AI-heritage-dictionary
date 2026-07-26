@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kanni — Heritage Language Translator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --maroon: #5c1a1f;
+        --maroon-dark: #3d1013;
+        --gold: #c89b3c;
+        --gold-light: #e4c778;
+        --teal: #16302e;
+        --parchment: #ede6d6;
+        --parchment-dark: #dfd5be;
+        --ink: #1a1512;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--parchment);
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+
+      .app {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 0 20px 80px;
+      }
+
+      header {
+        padding: 48px 20px 28px;
+        text-align: center;
+      }
+
+      .eyebrow {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--maroon);
+        margin-bottom: 10px;
+      }
+
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: clamp(2.2rem, 6vw, 3.4rem);
+        color: var(--maroon-dark);
+        letter-spacing: -0.01em;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        color: #5a5148;
+        margin-top: 10px;
+        max-width: 460px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.5;
+      }
+
+      /* Signature woven-border divider */
+      .weave {
+        height: 14px;
+        width: 100%;
+        background-image:
+          repeating-linear-gradient(
+            -45deg,
+            var(--maroon) 0,
+            var(--maroon) 4px,
+            transparent 4px,
+            transparent 8px
+          ),
+          repeating-linear-gradient(
+            45deg,
+            var(--gold) 0,
+            var(--gold) 4px,
+            transparent 4px,
+            transparent 8px
+          );
+        background-blend-mode: multiply;
+        opacity: 0.75;
+        margin: 0 0 32px;
+      }
+
+      nav {
+        display: flex;
+        gap: 4px;
+        background: var(--parchment-dark);
+        border-radius: 10px;
+        padding: 4px;
+        margin-bottom: 32px;
+      }
+
+      nav button {
+        flex: 1;
+        padding: 11px 8px;
+        border: none;
+        background: transparent;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        color: #6b6055;
+        border-radius: 7px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+
+      nav button.active {
+        background: var(--maroon);
+        color: var(--parchment);
+      }
+
+      section.panel {
+        display: none;
+      }
+      section.panel.active {
+        display: block;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--parchment-dark);
+        border-radius: 14px;
+        padding: 28px;
+      }
+
+      label {
+        display: block;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--maroon);
+        margin-bottom: 6px;
+        margin-top: 18px;
+      }
+
+      label:first-child {
+        margin-top: 0;
+      }
+
+      select,
+      textarea,
+      input {
+        width: 100%;
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+        padding: 12px 14px;
+        border: 1.5px solid var(--parchment-dark);
+        border-radius: 8px;
+        background: var(--parchment);
+        color: var(--ink);
+      }
+
+      select:focus,
+      textarea:focus,
+      input:focus {
+        outline: none;
+        border-color: var(--maroon);
+      }
+
+      textarea {
+        min-height: 96px;
+        resize: vertical;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .row {
+        display: flex;
+        gap: 14px;
+      }
+      .row > div {
+        flex: 1;
+      }
+
+      button.primary {
+        margin-top: 22px;
+        width: 100%;
+        padding: 14px;
+        background: var(--maroon);
+        color: var(--parchment);
+        border: none;
+        border-radius: 8px;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      button.primary:hover {
+        background: var(--maroon-dark);
+      }
+      button.primary:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .output {
+        margin-top: 20px;
+        padding: 18px;
+        background: var(--teal);
+        color: var(--parchment);
+        border-radius: 10px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 15px;
+        line-height: 1.5;
+        min-height: 24px;
+      }
+      .output.empty {
+        color: #7a938f;
+        font-style: italic;
+      }
+
+      .dict-results {
+        margin-top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .dict-item {
+        padding: 14px 16px;
+        background: var(--parchment);
+        border-radius: 8px;
+        border-left: 3px solid var(--gold);
+      }
+      .dict-item .word {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 500;
+        font-size: 15px;
+      }
+      .dict-item .meaning {
+        color: #5a5148;
+        font-size: 13px;
+        margin-top: 3px;
+      }
+      .dict-item .meta {
+        font-size: 11px;
+        color: var(--gold-light);
+        background: var(--maroon);
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-top: 6px;
+      }
+
+      .status-msg {
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--maroon);
+        font-weight: 500;
+      }
+
+      .count-box {
+        text-align: center;
+        background: var(--teal);
+        border-radius: 10px;
+        padding: 22px 16px;
+        margin-bottom: 8px;
+      }
+      .count-number {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 2.4rem;
+        color: var(--gold-light);
+        line-height: 1;
+      }
+      .count-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        opacity: 0.8;
+        margin-top: 6px;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 48px;
+        font-size: 12px;
+        color: #8a7f72;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="eyebrow">Tulu · Kodava · English</div>
+        <h1>Kanni</h1>
+        <p class="subtitle">
+          An open translator and living dictionary built to document and carry
+          forward the languages which are Endangered in India.
+        </p>
+      </header>
+
+      <div class="weave"></div>
+
+      <nav>
+        <button class="tab-btn active" data-tab="dictionary">Dictionary</button>
+        <button class="tab-btn" data-tab="contribute">Contribute</button>
+      </nav>
+
+      <!-- DICTIONARY -->
+      <section class="panel active" id="dictionary">
+        <div class="card">
+          <label>Search</label>
+          <input
+            type="text"
+            id="dict-search"
+            placeholder="Search a word or phrase…"
+          />
+
+          <label>Language</label>
+          <select id="dict-lang">
+            <option value="">All</option>
+            <option value="tulu">Tulu</option>
+            <option value="kodava">Kodava</option>
+            <option value="konkani">Konkani</option>
+            <option value="nawayathi ">Nawayathi</option>
+          </select>
+
+          <button class="primary" id="dict-search-btn">Search</button>
+
+          <div class="dict-results" id="dict-results"></div>
+        </div>
+      </section>
+
+      <!-- CONTRIBUTE -->
+      <section class="panel" id="contribute">
+        <div class="card">
+          <div class="count-box" id="count-box">
+            <div class="count-number" id="count-number">—</div>
+            <div class="count-label">words contributed by you</div>
+          </div>
+
+          <label>Contribution type</label>
+          <select id="contrib-type">
+            <option value="word">Word</option>
+            <option value="sentence">Sentence</option>
+          </select>
+
+          <div class="row">
+            <div>
+              <label>Language</label>
+              <select id="contrib-lang">
+                <option value="tulu">Tulu</option>
+                <option value="kodava">Kodava</option>
+              </select>
+            </div>
+            <div>
+              <label>Dialect (optional)</label>
+              <input
+                type="text"
+                id="contrib-dialect"
+                placeholder="e.g. Bantwal"
+              />
+            </div>
+          </div>
+
+          <label>Native text</label>
+          <input
+            type="text"
+            id="contrib-native"
+            placeholder="Word or sentence in Tulu/Kodava"
+          />
+
+          <label>English meaning</label>
+          <input
+            type="text"
+            id="contrib-english"
+            placeholder="English translation"
+          />
+
+          <label>Your name</label>
+          <input
+            type="text"
+            id="contrib-username"
+            placeholder="Contributor name"
+          />
+
+          <button class="primary" id="contrib-submit-btn">
+            Submit for review
+          </button>
+
+          <div class="status-msg" id="contrib-status"></div>
+        </div>
+      </section>
+
+      <footer>
+        Every contribution is reviewed before it joins the dataset.
+      </footer>
+    </div>
+
+    <script>
+      const API_BASE = ""; // same origin — works both locally (uvicorn serves both) and once deployed
+
+      // Tab switching
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".panel")
+            .forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(btn.dataset.tab).classList.add("active");
+        });
+      });
+
+      // Dictionary search
+      document
+        .getElementById("dict-search-btn")
+        .addEventListener("click", async () => {
+          const q = document.getElementById("dict-search").value.trim();
+          const language = document.getElementById("dict-lang").value;
+          const resultsEl = document.getElementById("dict-results");
+
+          if (!q) return;
+          resultsEl.innerHTML = "";
+
+          try {
+            const url = new URL(`${API_BASE}/dictionary/search`);
+            url.searchParams.set("q", q);
+            if (language) url.searchParams.set("language", language);
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!data.results || data.results.length === 0) {
+              resultsEl.innerHTML = `<div class="status-msg">No matches found.</div>`;
+              return;
+            }
+
+            data.results.forEach((item) => {
+              const div = document.createElement("div");
+              div.className = "dict-item";
+              div.innerHTML = `
+          <div class="word">${item.word || ""}</div>
+          <div class="meaning">${item.translation_en || ""}</div>
+          <span class="meta">${item.language || ""}${item.dialect ? " · " + item.dialect : ""}</span>
+        `;
+              resultsEl.appendChild(div);
+            });
+          } catch (err) {
+            resultsEl.innerHTML = `<div class="status-msg">Couldn't reach the dictionary service.</div>`;
+          }
+        });
+
+      // Contribution count
+      async function refreshContributionCount() {
+        const username = document
+          .getElementById("contrib-username")
+          .value.trim();
+        const countEl = document.getElementById("count-number");
+
+        if (!username) {
+          countEl.textContent = "—";
+          return;
+        }
+
+        try {
+          const url = new URL(`${API_BASE}/contribute/count`);
+          url.searchParams.set("username", username);
+          const res = await fetch(url);
+          const data = await res.json();
+          countEl.textContent = data.count ?? "—";
+        } catch (err) {
+          countEl.textContent = "—";
+        }
+      }
+
+      document
+        .getElementById("contrib-username")
+        .addEventListener("blur", refreshContributionCount);
+
+      // Contribute
+      document
+        .getElementById("contrib-submit-btn")
+        .addEventListener("click", async () => {
+          const type = document.getElementById("contrib-type").value;
+          const language = document.getElementById("contrib-lang").value;
+          const dialect =
+            document.getElementById("contrib-dialect").value || null;
+          const native = document.getElementById("contrib-native").value.trim();
+          const english = document
+            .getElementById("contrib-english")
+            .value.trim();
+          const username = document
+            .getElementById("contrib-username")
+            .value.trim();
+          const statusEl = document.getElementById("contrib-status");
+
+          if (!native || !english || !username) {
+            statusEl.textContent =
+              "Please fill in the native text, English meaning, and your name.";
+            return;
+          }
+
+          const content =
+            type === "word"
+              ? { word: native, translation_en: english }
+              : { source_text: native, translation_en: english };
+
+          try {
+            const res = await fetch(`${API_BASE}/contribute`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                type,
+                language,
+                dialect,
+                content,
+                contributor_username: username,
+              }),
+            });
+            const data = await res.json();
+            statusEl.textContent = data.message || "Submitted.";
+            document.getElementById("contrib-native").value = "";
+            document.getElementById("contrib-english").value = "";
+            refreshContributionCount();
+          } catch (err) {
+            statusEl.textContent =
+              "Couldn't reach the server. Is the backend running?";
+          }
+        });
+    </script>
+  </body>
+</html>
