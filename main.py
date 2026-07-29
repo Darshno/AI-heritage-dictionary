@@ -107,6 +107,17 @@ def contribute(req: ContributeRequest):
     result = db.submissions.insert_one(submission)
     return {"message": "Submission received, pending admin review", "id": str(result.inserted_id)}
 
+COLLECTIONS = {"tulu": db.tulu, "kodava": db.kodava, "konkani": db.konkani}
+
+@app.post("/contribute/{language}")
+def contribute(language: str, req: ContributeRequest):
+    if language not in COLLECTIONS:
+        raise HTTPException(404, "Unknown language")
+    submission = {"dialect": req.dialect, "native": req.native, "english": req.english}
+    result = COLLECTIONS[language].insert_one(submission)
+    return {"message": "Submission received, pending admin review", "id": str(result.inserted_id)}
+
+
 @app.get("/admin/pending")
 def get_pending_submissions():
     pending = list(db.submissions.find({"status": "pending"}))
