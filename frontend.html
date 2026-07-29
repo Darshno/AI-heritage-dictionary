@@ -492,56 +492,8 @@
 } catch (err) {
   statusEl.textContent = "Couldn't reach the server. Is the backend running?";
 }
-      // Contribute
-      document
-        .getElementById("contrib-submit-btn")
-        .addEventListener("click", async () => {
-          const type = document.getElementById("contrib-type").value;
-          const language = document.getElementById("contrib-lang").value;
-          const dialect =
-            document.getElementById("contrib-dialect").value || null;
-          const native = document.getElementById("contrib-native").value.trim();
-          const english = document
-            .getElementById("contrib-english")
-            .value.trim();
-          const username = document
-            .getElementById("contrib-username")
-            .value.trim();
-          const statusEl = document.getElementById("contrib-status");
-
-          if (!native || !english || !username) {
-            statusEl.textContent =
-              "Please fill in the native text, English meaning, and your name.";
-            return;
-          }
-
-          const content =
-            type === "word"
-              ? { word: native, translation_en: english }
-              : { source_text: native, translation_en: english };
-
-          try {
-            const res = await fetch(`${API_BASE}/contribute`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                type,
-                language,
-                dialect,
-                content,
-                contributor_username: username,
-              }),
-            });
-            const data = await res.json();
-            statusEl.textContent = data.message || "Submitted.";
-            document.getElementById("contrib-native").value = "";
-            document.getElementById("contrib-english").value = "";
-            refreshContributionCount();
-          } catch (err) {
-            statusEl.textContent =
-              "Couldn't reach the server. Is the backend running?";
-          }
-        });
+      });
+    
     </script>
   </body>
 </html>
