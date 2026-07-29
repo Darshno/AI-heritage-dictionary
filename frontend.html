@@ -311,13 +311,11 @@
 
       <div class="weave"></div>
 
-      <nav>
-        <button class="tab-btn" data-tab="contribute">Contribute</button>
-      </nav>
+     <nav>
+  <button class="tab-btn active" data-tab="contribute">Contribute</button>
+</nav>
 
-     
-      <!-- CONTRIBUTE -->
-      <section class="panel" id="contribute">
+<section class="panel active" id="contribute">
         <div class="card">
           <div class="count-box" id="count-box">
             <div class="count-number" id="count-number">—</div>
@@ -397,45 +395,6 @@
         });
       });
 
-      // Dictionary search
-      document
-        .getElementById("dict-search-btn")
-        .addEventListener("click", async () => {
-          const q = document.getElementById("dict-search").value.trim();
-          const language = document.getElementById("dict-lang").value;
-          const resultsEl = document.getElementById("dict-results");
-
-          if (!q) return;
-          resultsEl.innerHTML = "";
-
-          try {
-            const url = new URL(`${API_BASE}/dictionary/search`);
-            url.searchParams.set("q", q);
-            if (language) url.searchParams.set("language", language);
-
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (!data.results || data.results.length === 0) {
-              resultsEl.innerHTML = `<div class="status-msg">No matches found.</div>`;
-              return;
-            }
-
-            data.results.forEach((item) => {
-              const div = document.createElement("div");
-              div.className = "dict-item";
-              div.innerHTML = `
-          <div class="word">${item.word || ""}</div>
-          <div class="meaning">${item.translation_en || ""}</div>
-          <span class="meta">${item.language || ""}${item.dialect ? " · " + item.dialect : ""}</span>
-        `;
-              resultsEl.appendChild(div);
-            });
-          } catch (err) {
-            resultsEl.innerHTML = `<div class="status-msg">Couldn't reach the dictionary service.</div>`;
-          }
-        });
-
       // Contribution count
       async function refreshContributionCount() {
         const username = document
@@ -465,6 +424,7 @@
 
 
       document.getElementById("contrib-submit-btn").addEventListener("click",async() => {
+        const username = document.getElementById("contrib-username").value.trim();
         const language = document.getElementById("contrib-lang").value;
           const dialect =
             document.getElementById("contrib-dialect").value || null;
@@ -472,6 +432,7 @@
           const english = document
             .getElementById("contrib-english")
             .value.trim();
+          const statusEl = document.getElementById("contrib-status");
             if (!native || !english || !username) {
             statusEl.textContent =
               "Please fill in the native text, English meaning, and your name.";
