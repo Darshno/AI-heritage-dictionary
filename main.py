@@ -39,9 +39,9 @@ class TranslateRequest(BaseModel):
     target_language: str
 
 class ContributeRequest(BaseModel):
-    type: str               # "word" | "sentence" | "audio"
-    language: str
-    dialect: str | None = None
+    dialect: Optional[str] = None
+    native: str
+    english: str
 
 # ============================================================
 # Endpoints
