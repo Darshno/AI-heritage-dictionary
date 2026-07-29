@@ -42,8 +42,6 @@ class ContributeRequest(BaseModel):
     type: str               # "word" | "sentence" | "audio"
     language: str
     dialect: str | None = None
-    content: dict
-    contributor_username: str
 
 # ============================================================
 # Endpoints
