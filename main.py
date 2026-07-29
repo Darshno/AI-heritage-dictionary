@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 from datetime import datetime
 
+
 app = FastAPI(title="Heritage Language Translator API")
 
 app.add_middleware(
@@ -39,7 +40,7 @@ class TranslateRequest(BaseModel):
     target_language: str
 
 class ContributeRequest(BaseModel):
-    dialect: Optional[str] = None
+    dialect: str | None = None
     native: str
     english: str
 
